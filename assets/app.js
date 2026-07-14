@@ -1,5 +1,18 @@
 const hd=document.getElementById('hd');
 if(hd)addEventListener('scroll',()=>hd.classList.toggle('scrolled',scrollY>50),{passive:true});
+// 라이트/다크 수동 토글 (기본값: 시스템 따라감, 선택 시 localStorage 저장)
+(function(){var KEY='goldspa-theme';
+var saved=null;try{saved=localStorage.getItem(KEY);}catch(e){}
+if(saved==='light'||saved==='dark')document.documentElement.setAttribute('data-theme',saved);
+document.querySelectorAll('.themetoggle').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var cur=document.documentElement.getAttribute('data-theme');
+    if(!cur)cur=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+    var next=cur==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',next);
+    try{localStorage.setItem(KEY,next);}catch(e){}
+  });
+});})();
 (function(){var tg=document.querySelector('.navtoggle'),mm=document.getElementById('mmenu');if(!tg||!mm)return;
 function set(o){tg.classList.toggle('open',o);mm.classList.toggle('open',o);tg.setAttribute('aria-expanded',o);tg.setAttribute('aria-label',o?'메뉴 닫기':'메뉴 열기');document.body.style.overflow=o?'hidden':'';}
 tg.addEventListener('click',function(){set(!mm.classList.contains('open'));});
