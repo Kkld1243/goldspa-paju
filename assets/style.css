@@ -832,17 +832,6 @@ body{counter-reset:homesec}
 }
 .home-sec .sec-head p{margin-top:clamp(13px,1.4vw,18px);font-size:clamp(1rem,1.4vw,1.12rem)}
 .home-sec .sec-head .more-link{align-self:flex-start;margin-top:3px}
-/* 뜬금없는 앰버 컬러 블록 악센트 (시설 섹션) */
-.deco-amber .sec-head{position:relative}
-.deco-amber .sec-head>*{position:relative;z-index:1}
-.deco-amber .sec-head::before,
-.deco-amber .sec-head::after{content:"";position:absolute;z-index:0;background:#EEA637;pointer-events:none}
-.deco-amber .sec-head::before{left:-16px;top:-40px;width:clamp(76px,8vw,116px);aspect-ratio:1}
-.deco-amber .sec-head::after{right:-6px;top:-28px;width:clamp(116px,13vw,184px);aspect-ratio:1;opacity:.92}
-@media(max-width:760px){
-  .deco-amber .sec-head::before{left:-10px;top:-30px}
-  .deco-amber .sec-head::after{right:-4px;top:-22px;width:88px}
-}
 /* bigger editorial headings elsewhere */
 .intro h1{font-size:clamp(2.3rem,6vw,4rem);letter-spacing:-0.05em;line-height:1.02}
 .page-hero h1{font-size:clamp(2.2rem,5.2vw,3.6rem);letter-spacing:-0.05em;line-height:1.02}
