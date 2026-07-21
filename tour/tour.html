@@ -29,7 +29,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>골드스파사우나 · 360 가상투어</title>
+<title>파주 골드스파</title>
 
 <!-- ===== Pannellum (MIT) — lib 폴더의 파일 사용 ===== -->
 <link rel="stylesheet" href="lib/pannellum.css">
@@ -37,10 +37,11 @@
 
 <style>
   :root{
-    --bg:#12100d; --paper:#f5efe4; --muted:rgba(245,239,228,.62);
-    --gold:#d8b071; --gold-bright:#ecca8e;
-    --glass:rgba(22,18,14,.62); --glass-strong:rgba(20,16,12,.86);
-    --hair:rgba(245,239,228,.12);
+    /* 무채색(흰/검/회) 범용 테마 — 강조색은 흰색 (변수명 --gold 유지) */
+    --bg:#141414; --paper:#f4f4f5; --muted:rgba(244,244,245,.6);
+    --gold:#ffffff; --gold-bright:#e8e8e8;
+    --glass:rgba(24,24,24,.62); --glass-strong:rgba(16,16,16,.88);
+    --hair:rgba(255,255,255,.12);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -49,12 +50,14 @@
   #panorama{width:100%;height:100vh}
 
   .scrim{position:fixed;left:0;right:0;z-index:4;pointer-events:none}
-  .scrim.top{top:0;height:130px;background:linear-gradient(rgba(10,8,6,.5),transparent)}
-  .scrim.bot{bottom:0;height:220px;background:linear-gradient(transparent,rgba(10,8,6,.62))}
+  .scrim.top{top:0;height:130px;background:linear-gradient(rgba(6,6,6,.5),transparent)}
+  .scrim.bot{bottom:0;height:220px;background:linear-gradient(transparent,rgba(6,6,6,.62))}
 
   .brand{position:fixed;top:20px;left:22px;z-index:6;display:flex;align-items:center;gap:9px}
   .brand .mark{width:26px;height:26px;border-radius:7px;border:1.5px solid var(--gold);
-    display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:13px;font-weight:800}
+    display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:13px;font-weight:800;overflow:hidden}
+  .brand .mark.img{border:none;background:none}
+  .brand .mark img{width:100%;height:100%;object-fit:cover;display:block}
   .brand .name{font-size:13.5px;font-weight:700;letter-spacing:.02em}
   .brand .name small{display:block;font-size:10px;font-weight:600;letter-spacing:.22em;
     text-transform:uppercase;color:var(--muted);margin-top:1px}
@@ -64,56 +67,78 @@
   .scene-label .title{font-size:23px;font-weight:750;letter-spacing:-.01em;
     text-shadow:0 2px 16px rgba(0,0,0,.55);line-height:1.05}
 
-  .dock{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(14px);opacity:0;z-index:7;
+  .dock{position:fixed;left:50%;bottom:60px;transform:translateX(-50%) translateY(0);opacity:1;z-index:7;
     width:min(720px,94vw);background:var(--glass);backdrop-filter:blur(18px) saturate(1.2);
     border:1px solid var(--hair);border-radius:18px;padding:12px 12px 10px;
     box-shadow:0 18px 50px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
-    animation:rise .6s cubic-bezier(.22,.61,.36,1) .15s forwards}
-  @keyframes rise{to{opacity:1;transform:translateX(-50%) translateY(0)}}
+    transition:opacity .45s cubic-bezier(.22,.61,.36,1),transform .45s cubic-bezier(.22,.61,.36,1),visibility .45s}
+  .dock.collapsed{opacity:0;transform:translateX(-50%) translateY(26px);visibility:hidden;pointer-events:none}
+  /* 도크 열기/닫기 핸들 (항상 표시) */
+  .dock-toggle{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:8;
+    display:flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:12px;
+    background:var(--glass);border:1px solid var(--hair);color:var(--paper);cursor:pointer;
+    font-size:12px;font-weight:600;backdrop-filter:blur(16px) saturate(1.2);
+    box-shadow:0 8px 24px rgba(0,0,0,.4);transition:background .15s}
+  .dock-toggle:hover{background:var(--glass-strong)}
+  .dock-toggle .ico{width:15px;height:15px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .dock-toggle .chev{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s}
+  .dock-toggle.open .chev{transform:rotate(180deg)}
+  /* 좌측 하단 로고 (표시 전용) */
+  .brand-logo{position:fixed;left:22px;bottom:18px;z-index:8;max-height:50px;max-width:180px;
+    object-fit:contain;pointer-events:none;filter:drop-shadow(0 2px 8px rgba(0,0,0,.55))}
+  /* 나디르(바닥 가리개) — 원형 이미지, 클릭 불가 */
+  .hs-nadir{pointer-events:none}
+  .hs-nadir img{display:block;border-radius:50%}
 
   .gallery{display:flex;gap:9px;overflow-x:auto;padding:1px 1px 11px;scrollbar-width:thin;scroll-behavior:smooth}
   .gallery::-webkit-scrollbar{height:5px}
-  .gallery::-webkit-scrollbar-thumb{background:rgba(245,239,228,.18);border-radius:3px}
+  .gallery::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:3px}
   .thumb{flex:0 0 auto;width:120px;cursor:pointer;border-radius:11px;overflow:hidden;position:relative;
     box-shadow:0 2px 10px rgba(0,0,0,.3);transition:transform .18s cubic-bezier(.22,.61,.36,1),box-shadow .18s}
   .thumb:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.4)}
   .thumb::after{content:"";position:absolute;inset:0;border-radius:11px;border:2px solid transparent;transition:border-color .18s;pointer-events:none}
   .thumb.active::after{border-color:var(--gold)}
-  .thumb.active{box-shadow:0 6px 18px rgba(216,176,113,.28)}
+  .thumb.active{box-shadow:0 6px 18px rgba(255,255,255,.2)}
   .thumb img{display:block;width:120px;height:68px;object-fit:cover}
-  .thumb .veil{position:absolute;inset:0;background:rgba(18,16,13,.34);transition:opacity .18s}
+  .thumb .veil{position:absolute;inset:0;background:rgba(12,12,12,.34);transition:opacity .18s}
   .thumb.active .veil,.thumb:hover .veil{opacity:0}
   .thumb .cap{position:absolute;left:0;right:0;bottom:0;padding:14px 8px 6px;font-size:11.5px;font-weight:650;
-    background:linear-gradient(transparent,rgba(8,6,4,.82));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    background:linear-gradient(transparent,rgba(6,6,6,.82));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .thumb.active .cap{color:var(--gold-bright)}
-  .thumb .num{position:absolute;top:6px;left:7px;font-size:10px;font-weight:800;color:rgba(245,239,228,.9);text-shadow:0 1px 3px rgba(0,0,0,.7)}
+  .thumb .num{position:absolute;top:6px;left:7px;font-size:10px;font-weight:800;color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.7)}
 
   .bar{display:flex;align-items:center;justify-content:center;gap:4px;padding-top:9px;border-top:1px solid var(--hair)}
   .bar button{width:40px;height:36px;border:none;border-radius:10px;cursor:pointer;background:transparent;
     color:var(--paper);display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;position:relative}
   .bar button svg{width:19px;height:19px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
-  .bar button:hover{background:rgba(245,239,228,.09)}
+  .bar button:hover{background:rgba(255,255,255,.09)}
   .bar button.on{color:var(--bg);background:var(--gold)}
   .bar .sep{width:1px;height:20px;background:var(--hair);margin:0 6px}
   .bar button[data-tip]:hover::before{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;
     transform:translateX(-50%);background:var(--glass-strong);color:var(--paper);font-size:11px;font-weight:600;
     padding:4px 9px;border-radius:7px;white-space:nowrap;border:1px solid var(--hair)}
 
-  .hs-move{width:44px;height:44px;border-radius:50%;cursor:pointer;
-    background:radial-gradient(circle at 50% 35%,var(--gold-bright),var(--gold));
-    border:2.5px solid rgba(255,255,255,.95);box-shadow:0 5px 18px rgba(0,0,0,.5),0 0 0 6px rgba(216,176,113,.16);
-    display:flex;align-items:center;justify-content:center;color:#3a2a12;animation:pulse 2.2s ease-in-out infinite}
-  .hs-move svg{width:22px;height:22px;stroke:currentColor;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
-  @keyframes pulse{0%,100%{box-shadow:0 5px 18px rgba(0,0,0,.5),0 0 0 6px rgba(216,176,113,.16)}
-    50%{box-shadow:0 5px 18px rgba(0,0,0,.5),0 0 0 12px rgba(216,176,113,0)}}
-  .hs-info{width:30px;height:30px;border-radius:50%;background:rgba(18,16,13,.66);backdrop-filter:blur(4px);
-    border:1.5px solid rgba(245,239,228,.85);display:flex;align-items:center;justify-content:center;
+  /* 이동 핫스팟 = 위치 핀(지도 마커). Pannellum 이 이 요소에 transform 을 걸어
+     위치를 잡으므로 강조는 transform 대신 filter 로만 준다. */
+  .hs-move{width:38px;height:46px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    filter:drop-shadow(0 4px 7px rgba(0,0,0,.5));animation:pinpulse 2.4s ease-in-out infinite}
+  .hs-move svg{width:38px;height:46px;display:block;overflow:visible}
+  @keyframes pinpulse{0%,100%{filter:drop-shadow(0 4px 7px rgba(0,0,0,.5))}
+    50%{filter:drop-shadow(0 4px 7px rgba(0,0,0,.5)) drop-shadow(0 0 7px rgba(255,255,255,.9))}}
+  .hs-info{width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+    border:1.5px solid rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;
     color:var(--paper);font-size:14px;font-weight:700;font-style:italic;cursor:pointer;transition:transform .15s,background .15s}
-  .hs-info:hover{transform:scale(1.14);background:var(--gold);color:var(--bg)}
-  .pnlm-tooltip span{font-family:inherit!important;font-size:12.5px!important;font-weight:600!important;
-    padding:7px 12px!important;border-radius:9px!important;background:var(--glass-strong)!important;
-    border:1px solid var(--hair)!important;color:var(--paper)!important}
-  .pnlm-tooltip span:after{border-top-color:rgba(20,16,12,.86)!important}
+  .hs-info:hover{transform:scale(1.14);background:#fff;color:#141414}
+  /* 핫스팟 라벨 — 핀 위쪽 중앙, 가로 한 줄. 라벨 span 은 핫스팟 div 의 직접 자식.
+     이동 핀 라벨은 항상 표시, 정보 라벨은 hover 시 표시. */
+  .hs-move span,.hs-info span{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);
+    margin:0 0 11px 0;white-space:nowrap;pointer-events:none;
+    font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:9px;
+    background:var(--glass-strong);border:1px solid var(--hair);color:var(--paper);box-shadow:0 6px 20px rgba(0,0,0,.45)}
+  .hs-move span:after,.hs-info span:after{content:'';position:absolute;top:100%;left:50%;margin-left:-5px;width:0;height:0;
+    border:5px solid transparent;border-top-color:var(--glass-strong)}
+  .hs-info span{visibility:hidden}
+  .hs-info:hover span{visibility:visible}
 </style>
 </head>
 <body>
@@ -121,12 +146,12 @@
   <div class="scrim bot"></div>
   <div id="panorama"></div>
 
-  <div class="brand"><span class="mark">G</span>
-    <span class="name">골드스파사우나<small>Virtual Tour</small></span></div>
+  <div class="brand"><span class="mark img"><img src="images/brandmark.png" alt=""></span>
+    <span class="name">파주 골드스파<small>onleave guide</small></span></div>
 
   <div class="scene-label"><div class="title" id="sceneName"></div></div>
 
-  <div class="dock">
+  <div class="dock" id="dock">
     <div class="gallery" id="gallery"></div>
     <div class="bar">
       <button id="btnHome" data-tip="처음 시점"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></button>
@@ -138,6 +163,15 @@
       <button id="btnFull" data-tip="전체화면"><svg viewBox="0 0 24 24"><path d="M8 3H3v5"/><path d="M16 3h5v5"/><path d="M16 21h5v-5"/><path d="M8 21H3v-5"/></svg></button>
     </div>
   </div>
+
+  <!-- 도크 열기/닫기 핸들 -->
+  <button class="dock-toggle" id="dockToggle" title="갤러리 · 컨트롤 열기/닫기" aria-label="갤러리 열기/닫기">
+    <svg class="ico" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <svg class="chev" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>
+  </button>
+
+  <!-- 좌측 하단 로고 (표시 전용. 링크가 필요하면 <a href="..."> 로 감싸세요. 파일: images/logo.png) -->
+  <img class="brand-logo" src="images/logo.png" alt="" onerror="this.style.display='none'">
 
 <script>
 /* =====================================================================
@@ -156,57 +190,331 @@
      viewer.on('mousedown', e => console.log(viewer.mouseEventToCoords(e)));
    를 붙여넣은 뒤 원하는 지점을 클릭하면 [pitch, yaw] 가 찍힙니다.
    ===================================================================== */
+/* __SCENES_START__ (에디터 내보내기 시 이 배열을 통째로 교체) */
 const SCENES = [
   {
-    id: "restarea",
-    name: "휴게실",
-    image: "images/01-restarea.jpg",
-    yaw: 0, pitch: -4,
+    id: "scene",
+    name: "여탕_중온사우나",
+    image: "images/01.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
     hotSpots: [
-      { type:"info", yaw:-95, pitch:-16, text:"안마의자 휴게 공간" },
-      { type:"info", yaw:70,  pitch:-14, text:"마사지 · 안내" },
-      // 키즈존으로 이동 (yaw는 실제 통로 방향에 맞게 미세조정하세요)
-      { type:"move", yaw:20, pitch:-8, to:"kidszone", text:"키즈존으로" },
+      { type:"move", yaw:-36.7, pitch:-25, to:"scene7", text:"여탕_전경로" },
     ]
   },
   {
-    id: "kidszone",
-    name: "키즈존",
-    image: "images/02-kidszone.jpg",
-    yaw: 10, pitch: -5,
+    id: "scene2",
+    name: "여탕_고온사우나",
+    image: "images/02.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
     hotSpots: [
-      { type:"info", yaw:-40,  pitch:-18, text:"키즈존 이용시간 · AM 09:00 ~ PM 22:00" },
-      { type:"info", yaw:-112, pitch:-22, text:"인형뽑기 · 게임기 존" },
-      { type:"info", yaw:32,   pitch:-5,  text:"실내 놀이터 (터널 · 미끄럼틀)" },
-      // 유리문 너머로 휴게실이 보이는 방향(yaw≈117) → 휴게실로 이동
-      { type:"move", yaw:117, pitch:-12, to:"restarea", text:"휴게실로" },
+      { type:"move", yaw:-153.8, pitch:-17.7, to:"scene7", text:"여탕_전경로" },
+    ]
+  },
+  {
+    id: "scene3",
+    name: "여탕_습식사우나",
+    image: "images/03.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:-33.6, pitch:-38.7, to:"scene7", text:"여탕_전경로" },
+    ]
+  },
+  {
+    id: "scene4",
+    name: "여탕_원적외선방",
+    image: "images/04.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:-17.1, pitch:-17, to:"scene7", text:"여탕_전경로" },
+    ]
+  },
+  {
+    id: "scene5",
+    name: "여탕_세신실",
+    image: "images/05.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:48.1, pitch:-15.5, to:"3", text:"여탕_전경3로" },
+    ]
+  },
+  {
+    id: "3",
+    name: "여탕_전경3",
+    image: "images/06.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:117.7, pitch:-17.1, to:"scene5", text:"여탕_세신실로" },
+      { type:"move", yaw:-83.8, pitch:-12.9, to:"2", text:"여탕_전경2로" },
+      { type:"move", yaw:-6.7, pitch:-11.5, to:"scene7", text:"여탕_전경로" },
+    ]
+  },
+  {
+    id: "scene6",
+    name: "여탕_냉탕",
+    image: "images/07.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:170, pitch:-38.5, to:"2", text:"여탕_전경2로" },
+    ]
+  },
+  {
+    id: "2",
+    name: "여탕_전경2",
+    image: "images/08.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:157.1, pitch:-14.7, to:"scene6", text:"여탕_냉탕로" },
+      { type:"move", yaw:-76.3, pitch:-11.9, to:"scene7", text:"여탕_전경로" },
+      { type:"move", yaw:-5.1, pitch:-10.2, to:"3", text:"여탕_전경3로" },
+    ]
+  },
+  {
+    id: "scene7",
+    name: "여탕_전경",
+    image: "images/09.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:-10.9, pitch:-13.2, to:"22", text:"여탕_탈의실2로" },
+      { type:"move", yaw:-125, pitch:-7.9, to:"scene2", text:"여탕_고온사우나로" },
+      { type:"move", yaw:-157.9, pitch:-2.8, to:"scene3", text:"여탕_습식사우나로" },
+      { type:"move", yaw:-102.5, pitch:-9, to:"scene", text:"여탕_중온사우나로" },
+      { type:"move", yaw:-172.8, pitch:-3.2, to:"scene4", text:"여탕_원적외선방로" },
+      { type:"move", yaw:-145.8, pitch:-5.9, to:"2", text:"여탕_전경2로" },
+    ]
+  },
+  {
+    id: "scene8",
+    name: "여탕_파우더룸",
+    image: "images/10.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:-4, pitch:-14.6, to:"22", text:"여탕_탈의실2로" },
+    ]
+  },
+  {
+    id: "22",
+    name: "여탕_탈의실2",
+    image: "images/11.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:153, pitch:-10.9, to:"scene8", text:"여탕_파우더룸로" },
+      { type:"move", yaw:100.5, pitch:-3.7, to:"scene7", text:"여탕_전경로" },
+      { type:"move", yaw:-95.2, pitch:-13.2, to:"1", text:"여탕_탈의실1로" },
+    ]
+  },
+  {
+    id: "1",
+    name: "여탕_탈의실1",
+    image: "images/12.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:48.1, pitch:-12.2, to:"scene9", text:"찜질방_여탕 입구로" },
+      { type:"move", yaw:167.7, pitch:-9.2, to:"22", text:"여탕_탈의실2로" },
+    ]
+  },
+  {
+    id: "scene9",
+    name: "찜질방_여탕 입구",
+    image: "images/13.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:16.4, pitch:-11.9, to:"scene13", text:"찜질방 로비로" },
+      { type:"move", yaw:150.2, pitch:-16.1, to:"1", text:"여탕_탈의실1로" },
+    ]
+  },
+  {
+    id: "scene10",
+    name: "키즈존",
+    image: "images/14.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:172.3, pitch:-14.7, to:"scene13", text:"찜질방 로비로" },
+    ]
+  },
+  {
+    id: "scene11",
+    name: "한증막 내부",
+    image: "images/15.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:6.3, pitch:-12.1, to:"scene12", text:"찜질방 메인로" },
+    ]
+  },
+  {
+    id: "scene12",
+    name: "찜질방 메인",
+    image: "images/16.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:-2.8, pitch:-8.7, to:"scene13", text:"찜질방 로비로" },
+      { type:"move", yaw:-58.4, pitch:-9.3, to:"scene15", text:"찜질방_남탕 입구로" },
+      { type:"move", yaw:156.5, pitch:-20.1, to:"scene11", text:"한증막 내부로" },
+    ]
+  },
+  {
+    id: "scene13",
+    name: "찜질방 로비",
+    image: "images/17.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:123.7, pitch:-7.3, to:"scene15", text:"찜질방_남탕 입구로" },
+      { type:"move", yaw:53.5, pitch:-4.7, to:"scene12", text:"찜질방 메인로" },
+      { type:"move", yaw:-78.3, pitch:-5.8, to:"scene10", text:"키즈존로" },
+      { type:"move", yaw:-122.8, pitch:-5.3, to:"scene9", text:"찜질방_여탕 입구로" },
+    ]
+  },
+  {
+    id: "scene14",
+    name: "매점",
+    image: "images/18.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:66.3, pitch:-11, to:"scene15", text:"찜질방_남탕 입구로" },
+      { type:"move", yaw:124.6, pitch:-2.8, to:"scene12", text:"찜질방 메인로" },
+    ]
+  },
+  {
+    id: "scene15",
+    name: "찜질방_남탕 입구",
+    image: "images/19.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:22.3, pitch:-20.7, to:"24", text:"남탕_탈의실2로" },
+      { type:"move", yaw:-112.9, pitch:-14.5, to:"scene14", text:"매점로" },
+      { type:"move", yaw:151.1, pitch:-9, to:"scene12", text:"찜질방 메인로" },
+    ]
+  },
+  {
+    id: "23",
+    name: "남탕_전경2",
+    image: "images/20.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:135.8, pitch:-13.4, to:"scene17", text:"남탕_습식사우나로" },
+      { type:"move", yaw:101.4, pitch:-4.3, to:"scene16", text:"남탕_건식사우나로" },
+      { type:"move", yaw:34.3, pitch:-8.2, to:"scene18", text:"남탕_전경로" },
+    ]
+  },
+  {
+    id: "scene16",
+    name: "남탕_건식사우나",
+    image: "images/21.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:-39.6, pitch:-33.9, to:"scene18", text:"남탕_전경로" },
+    ]
+  },
+  {
+    id: "scene17",
+    name: "남탕_습식사우나",
+    image: "images/22.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:-72.3, pitch:-27.4, to:"scene18", text:"남탕_전경로" },
+    ]
+  },
+  {
+    id: "scene18",
+    name: "남탕_전경",
+    image: "images/23.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:-119.8, pitch:-9.3, to:"32", text:"남탕_탈의실3로" },
+      { type:"move", yaw:-47.2, pitch:-3.1, to:"scene16", text:"남탕_건식사우나로" },
+      { type:"move", yaw:-24.7, pitch:-2.1, to:"scene17", text:"남탕_습식사우나로" },
+      { type:"move", yaw:-4.1, pitch:-4.3, to:"23", text:"남탕_전경2로" },
+    ]
+  },
+  {
+    id: "scene19",
+    name: "남탕_파우더룸",
+    image: "images/24.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:-142.5, pitch:-13.7, to:"32", text:"남탕_탈의실3로" },
+    ]
+  },
+  {
+    id: "32",
+    name: "남탕_탈의실3",
+    image: "images/25.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:48.8, pitch:-8.7, to:"scene19", text:"남탕_파우더룸로" },
+      { type:"move", yaw:96.8, pitch:-10.6, to:"scene18", text:"남탕_전경로" },
+      { type:"move", yaw:-69.5, pitch:-19.3, to:"24", text:"남탕_탈의실2로" },
+    ]
+  },
+  {
+    id: "24",
+    name: "남탕_탈의실2",
+    image: "images/26.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:0, pitch:-10.5, to:"32", text:"남탕_탈의실3로" },
+      { type:"move", yaw:132, pitch:-12.9, to:"12", text:"남탕_탈의실1로" },
+    ]
+  },
+  {
+    id: "12",
+    name: "남탕_탈의실1",
+    image: "images/27.jpg",
+    yaw: 0, pitch: -4, hfov: 100,
+    hotSpots: [
+      { type:"move", yaw:-126.5, pitch:-19.7, to:"24", text:"남탕_탈의실2로" },
+      { type:"move", yaw:19.5, pitch:-23.7, to:"scene20", text:"로비로" },
+    ]
+  },
+  {
+    id: "scene20",
+    name: "로비",
+    image: "images/28.jpg",
+    yaw: -158.7, pitch: -18.5, hfov: 95.3,
+    hotSpots: [
+      { type:"move", yaw:-4, pitch:-12.1, to:"12", text:"남탕_탈의실1로" },
     ]
   },
 ];
 
 /* ---------- 이하 로직 (수정 불필요) ---------- */
-const ARROW='<svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>';
+const DOCK_DEFAULT_OPEN = false;   // 하단 도크 기본 상태: false=접힘(핸들만), true=펼침
+const PIN='<svg viewBox="0 0 36 44"><rect width="36" height="44" fill="transparent"/><path d="M18 2.5C10.3 2.5 4 8.6 4 16.1 4 25.6 15.6 39 17.1 40.7c.5.6 1.4.6 1.9 0C20.4 39 32 25.6 32 16.1 32 8.6 25.7 2.5 18 2.5z" fill="#ffffff" stroke="#141414" stroke-width="1.5"/><circle cx="18" cy="16" r="4.6" fill="#141414"/></svg>';
 let viewer, cur=0, rotating=false;
+/* 진입 장면(로비)의 배열 위치. 이름표·활성 썸네일·cur 이 모두 이 값을 따라야
+   뷰어는 로비인데 이름표는 다른 곳으로 뜨는 어긋남이 생기지 않는다. */
+const FIRST_ID = 'scene20';
+const FIRST_IDX = Math.max(0, SCENES.findIndex(function(s){return s.id===FIRST_ID;}));
 
 function buildConfig(){
-  const cfg={ default:{ firstScene:SCENES[0].id, sceneFadeDuration:850, autoLoad:true, showControls:false, hfov:100 }, scenes:{} };
+  /* 진입 장면은 로비(scene20). 배열 첫 항목(여탕_중온사우나)에서 시작하면
+     손님이 사우나 안에서 갑자기 시작하게 되어 동선이 어색하다. */
+  const FIRST = SCENES[FIRST_IDX].id;
+  const cfg={ default:{ firstScene:FIRST, sceneFadeDuration:500, autoLoad:true, showControls:false, hfov:100 }, scenes:{} };
   SCENES.forEach(s=>{
-    cfg.scenes[s.id]={
-      type:"equirectangular", panorama:s.image, yaw:s.yaw??0, pitch:s.pitch??0,
-      hotSpots:(s.hotSpots||[]).map(h=>{
-        if(h.type==="move") return { yaw:h.yaw, pitch:h.pitch, cssClass:"hs-move",
-          createTooltipFunc:moveHS, createTooltipArgs:h.text||"이동", sceneId:h.to };
-        return { yaw:h.yaw, pitch:h.pitch, cssClass:"hs-info", createTooltipFunc:infoHS, createTooltipArgs:h.text||"" };
-      })
-    };
+    const spots=(s.hotSpots||[]).map(h=>{
+      if(h.type==="move") return { yaw:h.yaw, pitch:h.pitch, cssClass:"hs-move",
+        createTooltipFunc:moveHS, createTooltipArgs:h.text||"이동",
+        clickHandlerFunc:onMoveClick, clickHandlerArgs:{ to:h.to, faceYaw:h.yaw, facePitch:h.pitch } };
+      return { yaw:h.yaw, pitch:h.pitch, cssClass:"hs-info", createTooltipFunc:infoHS, createTooltipArgs:h.text||"" };
+    });
+    if(s.nadir && s.nadir.image) spots.push(nadirSpot(s.nadir));
+    cfg.scenes[s.id]={ type:"equirectangular", panorama:s.image, yaw:s.yaw??0, pitch:s.pitch??0, hfov:s.hfov??100, hotSpots:spots };
   });
   return cfg;
 }
+/* 나디르: 바닥 정중앙(pitch=-90)에 고정, 줌에 따라 스케일되는 원형 이미지 */
+function nadirSpot(n){ return { yaw:0, pitch:-90, cssClass:"hs-nadir", scale:true,
+  createTooltipFunc:nadirHS, createTooltipArgs:n }; }
+function nadirHS(div,n){ div.classList.add('hs-nadir');
+  const img=document.createElement('img'); img.src=n.image; img.alt=''; img.onerror=()=>{div.style.display='none';};
+  const sz=n.size||340, op=(n.opacity==null?1:n.opacity), rot=n.rotation||0;
+  img.style.cssText='width:'+sz+'px;height:'+sz+'px;border-radius:50%;display:block;opacity:'+op+';transform:rotate('+rot+'deg)';
+  div.appendChild(img); }
 
 function buildGallery(){
   const g=document.getElementById('gallery');
   SCENES.forEach((s,i)=>{
-    const d=document.createElement('div'); d.className='thumb'+(i===0?' active':''); d.dataset.id=s.id;
+    const d=document.createElement('div'); d.className='thumb'+(i===FIRST_IDX?' active':''); d.dataset.id=s.id;
     const img=document.createElement('img'); img.src=s.image; img.alt=s.name; img.loading='lazy';
     const veil=document.createElement('div'); veil.className='veil';
     const cap=document.createElement('div'); cap.className='cap'; cap.textContent=s.name;
@@ -218,31 +526,62 @@ function buildGallery(){
 function start(){
   buildGallery();
   viewer=pannellum.viewer('panorama', buildConfig());
-  document.getElementById('sceneName').textContent=SCENES[0].name;
+  cur=FIRST_IDX;
+  document.getElementById('sceneName').textContent=SCENES[FIRST_IDX].name;
   viewer.on('scenechange',id=>{
     const idx=SCENES.findIndex(s=>s.id===id); cur=idx;
     document.getElementById('sceneName').textContent=SCENES[idx].name;
     document.querySelectorAll('.thumb').forEach(t=>t.classList.toggle('active',t.dataset.id===id));
     const at=document.querySelector('.thumb.active'); if(at)at.scrollIntoView({inline:'center',block:'nearest'});
+    if(traveling){                                   // 도착 씬에서 시작 줌으로 안정
+      viewer.lookAt(SCENES[idx].pitch??-4, viewer.getYaw(), SCENES[idx].hfov??100, 650);
+      traveling=false;
+    }
     if(rotating)viewer.startAutoRotate(-3);
   });
   wireControls();
+  wireDock();
 }
-function goTo(id){ if(viewer&&id!==SCENES[cur].id){ const s=SCENES.find(x=>x.id===id); viewer.loadScene(id,-4,s.yaw??0); } }
+/* 하단 도크 접기/펼치기 (세션 동안만 상태 유지) */
+function wireDock(){
+  const dock=document.getElementById('dock'), tog=document.getElementById('dockToggle');
+  let open=DOCK_DEFAULT_OPEN;
+  const apply=()=>{ dock.classList.toggle('collapsed',!open); tog.classList.toggle('open',open); };
+  apply();
+  tog.onclick=()=>{ open=!open; apply(); };
+}
+/* ===== 이동 모션 (스트리트뷰식 돌진 줌인) =====
+   1) 핫스팟 방향으로 회전 + 화면 확 줌인(빨려드는 느낌)
+   2) 다음 씬 로드 (줌인된 상태에서 페이드로 등장)
+   3) scenechange 에서 살짝 줌아웃하며 안정  */
+let traveling=false;
+function travelTo(id, faceYaw, facePitch){
+  if(!viewer || traveling || id===SCENES[cur].id) return;
+  traveling=true;
+  const p = (facePitch!==undefined&&facePitch!==null) ? facePitch : viewer.getPitch();
+  const y = (faceYaw   !==undefined&&faceYaw   !==null) ? faceYaw   : viewer.getYaw();
+  // 1) 방향으로 회전하며 확 줌인(hfov 100→35)  → 끝나면 2) 씬 로드
+  viewer.lookAt(p, y, 35, 480, function(){
+    const s = SCENES.find(x=>x.id===id);
+    viewer.loadScene(id, s.pitch??-4, s.yaw??0, 60);   // 줌인된 시야로 등장
+  });
+}
+function onMoveClick(evt, args){ travelTo(args.to, args.faceYaw, args.facePitch); }
+/* 갤러리·이전/다음 버튼도 같은 모션 사용(방향은 현재 시점 기준) */
+function goTo(id){ travelTo(id); }
 function wireControls(){
-  document.getElementById('btnHome').onclick=()=>{const s=SCENES[cur];viewer.setPitch(s.pitch??-4);viewer.setYaw(s.yaw??0);viewer.setHfov(100);};
+  document.getElementById('btnHome').onclick=()=>{const s=SCENES[cur];viewer.setPitch(s.pitch??-4);viewer.setYaw(s.yaw??0);viewer.setHfov(s.hfov??100);};
   document.getElementById('btnPrev').onclick=()=>goTo(SCENES[(cur-1+SCENES.length)%SCENES.length].id);
   document.getElementById('btnNext').onclick=()=>goTo(SCENES[(cur+1)%SCENES.length].id);
   const rot=document.getElementById('btnRotate');
   rot.onclick=()=>{rotating=!rotating;rot.classList.toggle('on',rotating);if(rotating)viewer.startAutoRotate(-3);else viewer.stopAutoRotate();};
   document.getElementById('btnFull').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();};
 }
+/* 라벨은 CSS(.pnlm-tooltip span)가 핀 위쪽 중앙에 가로로 배치 */
 function infoHS(div,text){div.classList.add('hs-info');div.innerHTML='i';
-  const t=document.createElement('span');t.textContent=text;div.appendChild(t);
-  div.addEventListener('mouseover',()=>{t.style.width=t.scrollWidth+'px';t.style.marginLeft=-(t.scrollWidth/2)+'px';t.style.marginTop=-t.scrollHeight-14+'px';});}
-function moveHS(div,text){div.classList.add('hs-move');div.innerHTML=ARROW;
-  const t=document.createElement('span');t.textContent=text;div.appendChild(t);
-  div.addEventListener('mouseover',()=>{t.style.width=t.scrollWidth+'px';t.style.marginLeft=-(t.scrollWidth/2)+'px';t.style.marginTop=-t.scrollHeight-20+'px';});}
+  const t=document.createElement('span');t.textContent=text;div.appendChild(t);}
+function moveHS(div,text){div.classList.add('hs-move');div.innerHTML=PIN;
+  const t=document.createElement('span');t.textContent=text;div.appendChild(t);}
 
 start();
 </script>
