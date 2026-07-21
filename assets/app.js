@@ -102,3 +102,57 @@ function step(d){var it=t.querySelector('.gal-item');var w=it?it.getBoundingClie
 var p=document.querySelector('.gprev'),n=document.querySelector('.gnext');
 if(p)p.addEventListener('click',function(){step(-1)});
 if(n)n.addEventListener('click',function(){step(1)});})();
+/* 라이트박스: 검사 성적서 원본 + 시설 갤러리(클릭하면 크게 보기)
+   이전/다음 버튼은 페이지마다 마크업을 고치지 않도록 여기서 주입한다. */
+(function(){var lb=document.getElementById('docLightbox');if(!lb)return;
+var img=lb.querySelector('img'),cap=lb.querySelector('figcaption'),closeBtn=lb.querySelector('.lb-close');
+var group=[],idx=-1,last=null;
+var prev=document.createElement('button'),next=document.createElement('button');
+prev.className='lb-prev';next.className='lb-next';prev.type='button';next.type='button';
+prev.setAttribute('aria-label','이전 사진');next.setAttribute('aria-label','다음 사진');
+prev.innerHTML='&#8249;';next.innerHTML='&#8250;';lb.appendChild(prev);lb.appendChild(next);
+
+function visible(el){return !!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);}
+function clean(s){return (s||'').replace(/\s*[—–-]\s*파주 골드스파\s*$/,'').trim();}
+function show(i){if(!group.length)return;idx=(i+group.length)%group.length;var it=group[idx];
+  img.src=it.src;img.alt=it.cap;cap.textContent=it.cap;
+  var multi=group.length>1;prev.style.display=multi?'':'none';next.style.display=multi?'':'none';}
+function open(list,i){group=list;last=list[i].el;show(i);
+  lb.classList.add('open');lb.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';closeBtn.focus();}
+function close(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';img.src='';group=[];if(last)last.focus();}
+
+/* 1) 검사 성적서 */
+var docs=[].slice.call(document.querySelectorAll('.pw-doc'));
+docs.forEach(function(b,i){b.addEventListener('click',function(){
+  open(docs.map(function(x){return {el:x,src:x.getAttribute('data-full'),cap:x.getAttribute('data-cap')||''};}),i);});});
+
+/* 2) 시설 갤러리 — 화면에 실제로 보이는 사진만 묶는다(모바일에서 숨긴 컷 제외) */
+var imgs=[].slice.call(document.querySelectorAll('.gal-item img,.fac-media img'));
+imgs.forEach(function(im){im.addEventListener('click',function(){
+  var list=imgs.filter(visible).map(function(x){return {el:x,src:x.getAttribute('src'),cap:clean(x.getAttribute('alt'))};});
+  var i=-1;list.forEach(function(x,k){if(x.el===im)i=k;});
+  if(i<0)return;open(list,i);});});
+
+prev.addEventListener('click',function(e){e.stopPropagation();show(idx-1);});
+next.addEventListener('click',function(e){e.stopPropagation();show(idx+1);});
+closeBtn.addEventListener('click',close);
+lb.addEventListener('click',function(e){if(e.target===lb||e.target.classList.contains('lb-fig'))close();});
+addEventListener('keydown',function(e){if(!lb.classList.contains('open'))return;
+  if(e.key==='Escape')close();else if(e.key==='ArrowLeft')show(idx-1);else if(e.key==='ArrowRight')show(idx+1);});
+/* 모바일 스와이프 */
+var x0=null;
+lb.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
+lb.addEventListener('touchend',function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0;
+  if(Math.abs(dx)>50)show(idx+(dx<0?1:-1));x0=null;},{passive:true});})();
+/* 시설 스트립 — 자동 무한 흐름(마퀴).
+   이동은 CSS 애니메이션이 맡고, 여기서는 이음매가 안 보이도록 원본 세트를 한 벌 복제한다.
+   트랙이 정확히 2배가 되므로 -50% 지점이 원본 시작과 완전히 겹친다. */
+(function(){
+  var track=document.querySelector('.fs-track'); if(!track)return;
+  var imgs=[].slice.call(track.children); if(!imgs.length)return;
+  imgs.forEach(function(im){
+    var c=im.cloneNode(true); c.setAttribute('aria-hidden','true'); track.appendChild(c);
+  });
+})();
