@@ -4,6 +4,9 @@
 # 원본 사진·부수 파일 (사이트 배포에 불필요, 용량 큼)
 pajugold_*.jpeg
 pajugold_*.jpg
+# 단, 히어로 슬라이드가 실제로 쓰는 2장은 배포에 필요하므로 예외
+!images/pajugold_032.jpg
+!images/pajugold_045.jpg
 KakaoTalk_*.jpeg
 골드스파사우나/
 골드스파사우나.zip
