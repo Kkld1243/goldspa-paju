@@ -1141,3 +1141,21 @@ header.scrolled .logo .logo-k,body.subpage .logo .logo-k{display:block}
    다크(현재 기본값)에서 11.26:1 로 선명. 색이 이미 앰버라 hover 구분은
    기존 화살표 이동(.more-link:hover i)이 맡는다. */
 .more-link{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* ============ 히어로 스크롤 유도 ============
+   기존은 1px 선이 scaleY 로 늘었다 줄었다 하는 방식이라, SCROLL 글자를 빼고 나니
+   거의 안 보였다. 가는 트랙 위로 밝은 빛이 '아래로 흘러내리게' 해서
+   글자 없이도 방향(아래로)이 읽히게 한다. (앞쪽 .cue 규칙보다 뒤여야 적용됨) */
+.cue{margin-top:0;margin-bottom:clamp(8px,1.2vw,14px);gap:0}
+.cue i{position:relative;width:1px;height:clamp(44px,5vw,64px);overflow:hidden;
+  background:rgba(255,255,255,.22);transform:none;animation:none}
+.cue i::after{content:"";position:absolute;left:0;top:0;width:100%;height:45%;
+  background:linear-gradient(transparent,rgba(255,255,255,.95));
+  animation:cueRun 2.3s cubic-bezier(.45,0,.25,1) infinite}
+@keyframes cueRun{0%{transform:translateY(-110%)}70%,100%{transform:translateY(240%)}}
+@media(prefers-reduced-motion:reduce){
+  .cue i::after{animation:none;transform:translateY(120%)}
+}
+/* .hero 는 flex-direction:column 인데 히어로 카피를 지운 뒤 흐름에 남은 자식이
+   .cue 하나뿐이라 맨 위(헤더 뒤)로 올라가 안 보였다. auto 마진으로 하단에 붙인다. */
+.cue{margin-top:auto}
