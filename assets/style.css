@@ -342,7 +342,7 @@ section{position:relative}
 .loc-info .btn{margin-top:18px;width:100%;justify-content:center}
 
 /* ---------- footer ---------- */
-footer{background:var(--hero);color:rgba(255,255,255,.68);padding:clamp(38px,5vw,56px) 0 30px}
+footer{background:var(--hero);color:rgba(255,255,255,.68);padding:clamp(28px,3.6vw,42px) 0 22px}
 .foot-top{display:flex;justify-content:space-between;gap:44px;flex-wrap:wrap;padding-bottom:40px;border-bottom:1px solid var(--hero-line)}
 .foot-logo{font-weight:800;font-size:1.3rem;color:#fff;letter-spacing:.01em}
 .foot-logo small{display:block;font-weight:500;font-size:.68rem;letter-spacing:.08em;opacity:.55;margin-top:7px}
@@ -1174,21 +1174,20 @@ header.scrolled .logo .logo-k,body.subpage .logo .logo-k{display:block}
 .foot-head{display:flex;align-items:center;justify-content:space-between;gap:20px}
 .foot-head .foot-logo{margin:0}
 .foot-head .foot-logo img{height:40px;width:auto;display:block;margin:0}
-.foot-sns{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;
+.foot-sns{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;
   border-radius:50%;background:rgba(255,255,255,.08);color:#fff;transition:background .2s var(--ease-out)}
 .foot-sns svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7}
-.foot-sns b{font-style:normal;font-weight:800;font-size:15px;line-height:1}
 .foot-social{display:flex;align-items:center;gap:9px}
 @media(hover:hover){.foot-sns:hover{background:rgba(255,255,255,.18)}}
 /* 사업자정보 — 한 항목 한 줄, '라벨 : 값' */
-.foot-biz{display:flex;flex-direction:column;gap:6px;margin-top:clamp(20px,2.8vw,32px);
-  font-size:.86rem;line-height:1.5;color:rgba(255,255,255,.56);letter-spacing:-0.01em}
+.foot-biz{display:flex;flex-direction:column;gap:5px;margin-top:clamp(14px,2vw,22px);
+  font-size:.85rem;line-height:1.45;color:rgba(255,255,255,.56);letter-spacing:-0.01em}
 .foot-biz i{font-style:normal;color:rgba(255,255,255,.4)}
 .foot-biz i::after{content:" :";white-space:pre}
 .foot-biz a{color:inherit}
 @media(hover:hover){.foot-biz a:hover{color:rgba(255,255,255,.9)}}
 /* 저작권 한 줄 */
-footer .foot-bot{display:block;margin-top:clamp(16px,2.2vw,24px);padding-top:15px;
+footer .foot-bot{display:block;margin-top:clamp(12px,1.6vw,18px);padding-top:13px;
   border-top:1px solid var(--hero-line);font-size:.8rem;color:rgba(255,255,255,.4)}
 
 /* ============ 언어 전환 (KR / EN) ============
