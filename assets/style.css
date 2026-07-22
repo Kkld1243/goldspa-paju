@@ -342,7 +342,7 @@ section{position:relative}
 .loc-info .btn{margin-top:18px;width:100%;justify-content:center}
 
 /* ---------- footer ---------- */
-footer{background:var(--hero);color:rgba(255,255,255,.68);padding:clamp(56px,8vw,84px) 0 40px}
+footer{background:var(--hero);color:rgba(255,255,255,.68);padding:clamp(38px,5vw,56px) 0 30px}
 .foot-top{display:flex;justify-content:space-between;gap:44px;flex-wrap:wrap;padding-bottom:40px;border-bottom:1px solid var(--hero-line)}
 .foot-logo{font-weight:800;font-size:1.3rem;color:#fff;letter-spacing:.01em}
 .foot-logo small{display:block;font-weight:500;font-size:.68rem;letter-spacing:.08em;opacity:.55;margin-top:7px}
@@ -1048,9 +1048,9 @@ header.scrolled .logo .logo-k,body.subpage .logo .logo-k{display:block}
    .shell 이 z-index:2 라 ::before 를 깔면 글자 뒤로 들어간다.
    다크모드에서는 밝은 그림이 떠 보이므로 더 낮춘다. */
 .intro::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
-  background:url(../images/intro-bg.jpg) center/cover no-repeat;opacity:.09}
-@media(prefers-color-scheme:dark){:root:not([data-theme]) .intro::before{opacity:.045}}
-:root[data-theme="dark"] .intro::before{opacity:.045}
+  background:url(../images/intro-bg.jpg) center/cover no-repeat;opacity:.17}
+@media(prefers-color-scheme:dark){:root:not([data-theme]) .intro::before{opacity:.08}}
+:root[data-theme="dark"] .intro::before{opacity:.08}
 
 /* 시설 섹션 하단 CTA — 시설 3개를 다 본 직후가 '전체 보기'를 누르는 자리 */
 .fac-cta{margin-top:clamp(30px,4.5vw,56px)}
@@ -1176,18 +1176,20 @@ header.scrolled .logo .logo-k,body.subpage .logo .logo-k{display:block}
 .foot-head .foot-logo img{height:40px;width:auto;display:block;margin:0}
 .foot-sns{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;
   border-radius:50%;background:rgba(255,255,255,.08);color:#fff;transition:background .2s var(--ease-out)}
-.foot-sns svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7}
+.foot-sns svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7}
+.foot-sns b{font-style:normal;font-weight:800;font-size:15px;line-height:1}
+.foot-social{display:flex;align-items:center;gap:9px}
 @media(hover:hover){.foot-sns:hover{background:rgba(255,255,255,.18)}}
 /* 사업자정보 — 한 항목 한 줄, '라벨 : 값' */
-.foot-biz{display:flex;flex-direction:column;gap:9px;margin-top:clamp(30px,4.5vw,52px);
-  font-size:.9rem;line-height:1.55;color:rgba(255,255,255,.56);letter-spacing:-0.01em}
+.foot-biz{display:flex;flex-direction:column;gap:6px;margin-top:clamp(20px,2.8vw,32px);
+  font-size:.86rem;line-height:1.5;color:rgba(255,255,255,.56);letter-spacing:-0.01em}
 .foot-biz i{font-style:normal;color:rgba(255,255,255,.4)}
 .foot-biz i::after{content:" :";white-space:pre}
 .foot-biz a{color:inherit}
 @media(hover:hover){.foot-biz a:hover{color:rgba(255,255,255,.9)}}
 /* 저작권 한 줄 */
-footer .foot-bot{display:block;margin-top:clamp(26px,3.5vw,40px);padding-top:20px;
-  border-top:1px solid var(--hero-line);font-size:.82rem;color:rgba(255,255,255,.4)}
+footer .foot-bot{display:block;margin-top:clamp(16px,2.2vw,24px);padding-top:15px;
+  border-top:1px solid var(--hero-line);font-size:.8rem;color:rgba(255,255,255,.4)}
 
 /* ============ 언어 전환 (KR / EN) ============
    테마 토글과 같은 색 규칙: 히어로 위에선 흰색, 스크롤·서브페이지에선 잉크색. */
