@@ -1191,12 +1191,16 @@ footer .foot-bot{display:block;margin-top:clamp(26px,3.5vw,40px);padding-top:20p
 
 /* ============ 언어 전환 (KR / EN) ============
    테마 토글과 같은 색 규칙: 히어로 위에선 흰색, 스크롤·서브페이지에선 잉크색. */
-.langtoggle{display:inline-flex;align-items:center;justify-content:center;height:30px;padding:0 11px;
-  font-size:.8rem;font-weight:700;letter-spacing:.04em;color:#fff;
-  border:1px solid rgba(255,255,255,.4);border-radius:100px;
-  transition:color .35s var(--ease-out),border-color .2s var(--ease-out)}
-header.scrolled .langtoggle,body.subpage .langtoggle{color:var(--ink);border-color:var(--line)}
-@media(hover:hover){.langtoggle:hover{border-color:var(--accent);color:var(--accent)}}
+.langtoggle{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:700;letter-spacing:.02em}
+.langtoggle a{color:rgba(255,255,255,.5);transition:color .2s var(--ease-out)}    /* 히어로: 비활성=흐린 흰색 */
+.langtoggle a[aria-current]{color:#fff}                                          /* 히어로: 활성=흰색 */
+.langtoggle a:not([aria-current]){cursor:pointer}
+.langtoggle a + a::before{content:"/";margin-right:6px;color:rgba(255,255,255,.32);font-weight:400}
+/* 스크롤·서브페이지(밝은 배경): 활성=검정, 비활성=회색 */
+header.scrolled .langtoggle a,body.subpage .langtoggle a{color:var(--muted)}
+header.scrolled .langtoggle a[aria-current],body.subpage .langtoggle a[aria-current]{color:var(--ink)}
+header.scrolled .langtoggle a + a::before,body.subpage .langtoggle a + a::before{color:var(--line)}
+@media(hover:hover){.langtoggle a:not([aria-current]):hover{color:var(--accent)}}
 @media(max-width:900px){.bar .langtoggle{display:none}}
 .mmenu-lang{margin-top:22px;display:inline-flex;gap:10px;font-size:1rem;font-weight:700;color:var(--muted)}
 .mmenu-lang a{padding:6px 12px;border:1px solid var(--line);border-radius:100px;color:var(--ink)}
